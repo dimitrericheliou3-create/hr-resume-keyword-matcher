@@ -79,7 +79,7 @@
         onCancel: () => { paymentStatus.textContent = "Checkout cancelled. You can still use the free tier."; },
         onError: (error) => { paymentStatus.textContent = "PayPal checkout failed. Please try again."; err.textContent = error?.message || "PayPal checkout failed."; }
       }).render("#paypalButtons");
-      paymentStatus.textContent = "Pay securely with PayPal. Premium access lasts 24 hours in this open page.";
+      paymentStatus.textContent = "Pay securely with PayPal. Premium access lasts 75 hours in this open page.";
     } catch (error) {
       paymentStatus.textContent = "PayPal checkout could not initialize. " + (error.message || "");
     }
