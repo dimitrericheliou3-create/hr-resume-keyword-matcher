@@ -5,6 +5,24 @@ const STOP = new Set(("a an and are as at be been being by for from has have he 
 const COMMON_SKILLS = [
   "javascript","typescript","python","java","c++","c#","sql","excel","power bi","tableau","salesforce","workday","adp","sap","hris","ats","recruiting","talent acquisition","sourcing","onboarding","payroll","employee relations","labor law","employment law","benefits administration","performance management","learning and development","compensation","project management","stakeholder management","data analysis","communication","leadership","customer service","budgeting","forecasting","accounting","bookkeeping","financial reporting","compliance","risk management","cloudflare","react","node.js","rest api","git","agile","scrum","marketing","seo","content strategy","crm"
 ];
+async function hasPremiumAccess(request, secret) {
+  if (!secret) return false;
+  const auth = request.headers.get("authorization") || "";
+  const match = auth.match(/^Bearer ([A-Za-z0-9._-]+)$/);
+  if (!match) return false;
+  const parts = match[1].split(".");
+  if (parts.length !== 2) return false;
+  const [body, signature] = parts;
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), {name:"HMAC", hash:"SHA-256"}, false, ["verify"]);
+  const bytes = Uint8Array.from(atob(signature.replace(/-/g,"+").replace(/_/g,"/") + "=".repeat((4-signature.length%4)%4)), c => c.charCodeAt(0));
+  const valid = await crypto.subtle.verify("HMAC", key, bytes, new TextEncoder().encode(body));
+  if (!valid) return false;
+  try {
+    const raw = body.replace(/-/g,"+").replace(/_/g,"/") + "=".repeat((4-body.length%4)%4);
+    const payload = JSON.parse(atob(raw));
+    return payload.iss === "hr-resume-keyword-matcher" && payload.aud === "premium" && Number.isInteger(payload.exp) && payload.exp > Math.floor(Date.now()/1000);
+  } catch { return false; }
+}
 const corsHeaders = { "content-type": "application/json; charset=utf-8", "cache-control": "no-store, max-age=0", "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", "content-security-policy": "default-src 'none'; frame-ancestors 'none'" };
 function response(data, status=200) { return new Response(JSON.stringify(data), {status, headers: corsHeaders}); }
 function terms(text) {
@@ -38,7 +56,7 @@ function matchOne(job, resume, keywords) {
   const score = Math.round(Math.max(0, Math.min(100, coverage*65 + skillCoverage*35)));
   return {name: String(resume.name || "Untitled resume").slice(0,120), score, matchedCount: found.length, totalKeywords: keywords.length, skillCoverage: Math.round(skillCoverage*100), matchedKeywords: found.map(x=>x.term), missingKeywords: missing.slice(0,20).map(x=>x.term), matchedSkills: jobSkills.filter(s=>resumeSkills.includes(s)), missingSkills: jobSkills.filter(s=>!resumeSkills.includes(s)), summary: score >= 75 ? "Strong keyword alignment" : score >= 50 ? "Partial keyword alignment" : "Low keyword alignment", note:"Keyword overlap is not a measure of candidate quality. Review the resume and assess job-related evidence directly."};
 }
-export async function onRequestPost({request}) {
+export async function onRequestPost({request,env}) {
   const type = request.headers.get("content-type") || "";
   if (!type.toLowerCase().includes("application/json")) return response({error:"Content-Type must be application/json."},415);
   const declared = Number(request.headers.get("content-length") || 0);
@@ -51,7 +69,9 @@ export async function onRequestPost({request}) {
   if (job.length < 30) return response({error:"Add a job description with at least 30 characters."},400);
   if (job.length > MAX_TEXT) return response({error:"Job description is too long (maximum 100,000 characters)."},413);
   if (!Array.isArray(resumes) || resumes.length < 1) return response({error:"Upload or add at least one resume."},400);
-  if (resumes.length > MAX_RESUMES) return response({error:`Analyze no more than ${MAX_RESUMES} resumes per request.`},413);
+  const premium = await hasPremiumAccess(request, env.ACCESS_TOKEN_SECRET);
+  if (!premium && resumes.length > 1) return response({error:"The free tier allows one resume per request. Unlock the 24-hour Premium Pass for $5 USD to compare up to 50 resumes at once.",upgradeRequired:true,price:"5.00",currency:"USD"},402);
+  if (resumes.length > (premium ? MAX_RESUMES : 1)) return response({error:`Analyze no more than ${premium ? MAX_RESUMES : 1} resumes per request.`},413);
   const valid = [];
   for (let i=0;i<resumes.length;i++) {
     const r = resumes[i];
