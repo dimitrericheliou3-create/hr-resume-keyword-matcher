@@ -89,8 +89,8 @@
     err.textContent = "";
     if (job.value.trim().length < 30) { err.textContent = "Enter a job description with at least 30 characters."; return; }
     if (!resumes.length) { err.textContent = "Add at least one resume."; return; }
-    if (!premiumToken && resumes.length > 1) {
-      err.textContent = "The free tier allows one resume per request. Use the $5 USD Premium Pass above to compare up to 50 resumes.";
+    if (!premiumToken && resumes.length > 3) {
+      err.textContent = "The free tier allows up to 3 resumes per request. Use the $5 USD Premium Pass above to compare up to 50 resumes.";
       $("#premiumHeading").scrollIntoView({behavior:"smooth",block:"center"}); return;
     }
     const button = $("#matchButton"); button.disabled = true; button.textContent = "Matching…";
