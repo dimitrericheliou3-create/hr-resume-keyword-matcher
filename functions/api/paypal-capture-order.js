@@ -8,7 +8,8 @@ async function sign(payload,secret) {
   return body+"."+b64u(sig);
 }
 async function accessToken(env) {
-  if(!env.PAYPAL_CLIENT_ID||!env.PAYPAL_CLIENT_SECRET) throw new Error("PayPal server credentials are not configured.");
+  if(!env.PAYPAL_CLIENT_ID) throw new Error("PAYPAL_CLIENT_ID is missing in this deployment environment.");
+  if(!env.PAYPAL_CLIENT_SECRET) throw new Error("PAYPAL_CLIENT_SECRET is missing in this deployment environment.");
   const base=env.PAYPAL_MODE==="live"?"https://api-m.paypal.com":"https://api-m.sandbox.paypal.com";
   const res=await fetch(base+"/v1/oauth2/token",{method:"POST",headers:{authorization:"Basic "+btoa(env.PAYPAL_CLIENT_ID+":"+env.PAYPAL_CLIENT_SECRET),"content-type":"application/x-www-form-urlencoded"},body:"grant_type=client_credentials"});
   const data=await res.json();
