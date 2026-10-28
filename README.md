@@ -7,14 +7,14 @@ A stateless resume and keyword matching tool built for Cloudflare Pages and Page
 - `functions/api/match.js`: request-only matching endpoint at `POST /api/match`.
 - `functions/api/paypal-config.js`: exposes only the public PayPal Client ID and product display settings.
 - `functions/api/paypal-create-order.js`: creates a fixed-price PayPal order server-side.
-- `functions/api/paypal-capture-order.js`: captures and validates the PayPal payment, then issues a 24-hour HMAC-signed premium token.
+- `functions/api/paypal-capture-order.js`: captures and validates the PayPal payment, then issues a 75-hour HMAC-signed premium token.
 - No database, D1, KV, R2, Durable Objects, cookies, or browser storage.
 
 ## Free and Premium
 - Free: one resume per matching request.
-- Premium: $5 USD one-time payment for a 24-hour pass, allowing up to 50 resumes per matching request.
+- Premium: $5 USD one-time payment for a 75-hour pass, allowing up to 50 resumes per matching request.
 - The premium token exists in page memory only. Refreshing or closing the page loses it; there is intentionally no token persistence or customer purchase history because no database is used.
-- This first release is a one-time 24-hour pass, not a recurring subscription.
+- This first release is a one-time 75-hour pass, not a recurring subscription.
 
 ## PayPal and Cloudflare setup
 In PayPal Developer Dashboard, create a REST API app and copy its Client ID and Secret. Begin with sandbox credentials and test with a sandbox buyer account.
