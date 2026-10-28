@@ -26,7 +26,7 @@ export async function onRequestPost({request,env}) {
     const {token,base}=await accessToken(env);
     const res=await fetch(base+"/v2/checkout/orders/"+encodeURIComponent(orderId)+"/capture",{method:"POST",headers:{authorization:"Bearer "+token,"content-type":"application/json","prefer":"return=representation"}});
     const data=await res.json();
-    if(!res.ok) return reply({error:"PayPal could not capture this payment. If you were charged, check your PayPal activity before trying again."},402);
+    if(!res.ok) { const issue=data.details?.[0]?.issue || data.name || "CAPTURE_FAILED"; const debugId=typeof data.debug_id==="string"?data.debug_id:null; return reply({error:"PayPal capture failed: "+issue+". If you were charged, check your PayPal activity before trying again.",paypalIssue:issue,paypalDebugId:debugId,paypalStatus:res.status},402); }
     const unit=data.purchase_units?.[0];
     const capture=unit?.payments?.captures?.[0];
     const amount=capture?.amount;
