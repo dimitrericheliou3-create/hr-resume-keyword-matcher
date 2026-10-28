@@ -31,7 +31,7 @@ export async function onRequestPost({request,env}) {
     const amount=capture?.amount;
     if(data.status!=="COMPLETED"||capture?.status!=="COMPLETED"||amount?.currency_code!=="USD"||amount?.value!=="5.00"||unit?.custom_id!=="hrmatcher-premium-24h") return reply({error:"Payment could not be verified as a completed $5.00 USD premium pass."},402);
     const now=Math.floor(Date.now()/1000);
-    const premiumToken=await sign({iss:"hr-resume-keyword-matcher",aud:"premium",iat:now,exp:now+86400,orderId},env.ACCESS_TOKEN_SECRET);
-    return reply({ok:true,premiumToken,expiresAt:new Date((now+86400)*1000).toISOString(),message:"Premium is active for 24 hours in this open page."});
+    const premiumToken=await sign({iss:"hr-resume-keyword-matcher",aud:"premium",iat:now,exp:now+270000,orderId},env.ACCESS_TOKEN_SECRET);
+    return reply({ok:true,premiumToken,expiresAt:new Date((now+270000)*1000).toISOString(),message:"Premium is active for 75 hours in this open page."});
   } catch(e) { return reply({error:e.message||"Unable to verify payment."},500); }
 }
