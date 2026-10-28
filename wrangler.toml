@@ -3,5 +3,5 @@ compatibility_date = "2026-10-01"
 pages_build_output_dir = "public"
 
 [vars]
-PAYPAL_CLIENT_ID = "BAAGMutuqSwE63LJnHa3yiYGZpTU4W9BSSJhNdK7k-jhORZmZHif4JxbvMTuFBe7zUgB68DCC8dt1XFzo0"
-PAYPAL_MODE = "sandbox"
+PAYPAL_CLIENT_ID = "BAAQJMTYxpHAkL-butFW9f5YfuiLiHOHM45ltZHpYAxQxYml3agUVStDbWswCn_CxOXjYsh62YZ3EfTSbo"
+PAYPAL_MODE = "live"
