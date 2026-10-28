@@ -1,3 +1,7 @@
 name = "hr-resume-keyword-matcher"
 compatibility_date = "2026-10-01"
 pages_build_output_dir = "public"
+
+[vars]
+PAYPAL_CLIENT_ID = "AXGRnvMtmLwy8NUEsD-jgT6kNW9FKRDmT_--hIOoAdRhx7447xwGSlwpXieZNF8Vqt0qvRIkgDyX6dRD"
+PAYPAL_MODE = "sandbox"
