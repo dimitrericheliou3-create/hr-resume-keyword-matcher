@@ -1,5 +1,6 @@
 const MAX_BODY = 1_500_000;
 const MAX_RESUMES = 50;
+const FREE_MAX_RESUMES = 3;
 const MAX_TEXT = 100_000;
 const STOP = new Set(("a an and are as at be been being by for from has have he her hers him his i in into is it its of on or our she that the their them they this to was we were will with you your candidate experience role work using use required preferred strong including across ability skills skill responsibilities qualifications years year team teams professional proficient proficiency knowledge excellent plus etc").split(/\s+/));
 const COMMON_SKILLS = [
@@ -70,8 +71,8 @@ export async function onRequestPost({request,env}) {
   if (job.length > MAX_TEXT) return response({error:"Job description is too long (maximum 100,000 characters)."},413);
   if (!Array.isArray(resumes) || resumes.length < 1) return response({error:"Upload or add at least one resume."},400);
   const premium = await hasPremiumAccess(request, env.ACCESS_TOKEN_SECRET);
-  if (!premium && resumes.length > 1) return response({error:"The free tier allows one resume per request. Unlock the 24-hour Premium Pass for $5 USD to compare up to 50 resumes at once.",upgradeRequired:true,price:"5.00",currency:"USD"},402);
-  if (resumes.length > (premium ? MAX_RESUMES : 1)) return response({error:`Analyze no more than ${premium ? MAX_RESUMES : 1} resumes per request.`},413);
+  if (!premium && resumes.length > FREE_MAX_RESUMES) return response({error:"The free tier allows up to 3 resumes per request. Unlock the $5 USD Premium Pass to compare up to 50 resumes at once.",upgradeRequired:true,price:"5.00",currency:"USD"},402);
+  if (resumes.length > (premium ? MAX_RESUMES : FREE_MAX_RESUMES)) return response({error:`Analyze no more than ${premium ? MAX_RESUMES : FREE_MAX_RESUMES} resumes per request.`},413);
   const valid = [];
   for (let i=0;i<resumes.length;i++) {
     const r = resumes[i];
